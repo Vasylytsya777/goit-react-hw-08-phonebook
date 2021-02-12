@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios from "axios";
 import {
   addContactRequest,
   addContactSuccess,
@@ -9,18 +9,18 @@ import {
   deleteContactRequest,
   deleteContactSuccess,
   deleteContactError,
-} from '../actions/phonebookActions';
+} from "../actions/phonebookActions";
 
 const token = {
   set(token) {
     axios.defaults.headers.common.Authorization = `${token}`;
   },
   unset() {
-    axios.defaults.headers.common.Authorization = '';
+    axios.defaults.headers.common.Authorization = "";
   },
 };
 
-export const operationAddContact = contact => async (dispatch, getState) => {
+export const operationAddContact = (contact) => async (dispatch, getState) => {
   dispatch(addContactRequest());
 
   const {
@@ -30,7 +30,7 @@ export const operationAddContact = contact => async (dispatch, getState) => {
   try {
     const res = await axios.post(
       `${process.env.REACT_APP_BASE_URL}/contacts/${localId}.json?auth=${persistToken}`,
-      contact,
+      contact
     );
     dispatch(addContactSuccess({ ...contact, id: res.data.name }));
   } catch (error) {
@@ -50,11 +50,11 @@ export const operationGetContacts = () => async (dispatch, getState) => {
 
   try {
     const res = await axios.get(
-      `${process.env.REACT_APP_BASE_URL}/contacts/${localId}.json?auth=${persistToken}`,
+      `${process.env.REACT_APP_BASE_URL}/contacts/${localId}.json?auth=${persistToken}`
     );
 
     if (res.data) {
-      const contacts = Object.keys(res.data).map(key => ({
+      const contacts = Object.keys(res.data).map((key) => ({
         ...res.data[key],
         id: key,
       }));
@@ -66,10 +66,16 @@ export const operationGetContacts = () => async (dispatch, getState) => {
   }
 };
 
-export const operationDeleteContact = id => async dispatch => {
+export const operationDeleteContact = (id) => async (dispatch, getState) => {
   dispatch(deleteContactRequest());
+  const {
+    auth: { token: persistToken, localId },
+  } = getState();
+
   try {
-    await axios.delete(`${process.env.REACT_APP_BASE_URL}/contacts/${id}.json`);
+    await axios.delete(
+      `${process.env.REACT_APP_BASE_URL}/contacts/${localId}/${id}.json?auth=${persistToken}`
+    );
     dispatch(deleteContactSuccess(id));
   } catch (error) {
     dispatch(deleteContactError(error));
